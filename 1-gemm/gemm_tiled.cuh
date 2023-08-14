@@ -13,8 +13,8 @@
  */
 template <int BLOCK_SIZE>
 __global__ void gemm_tiled(float* C, const float* A, const float* B, int hA, int wA, int wB) {
-  __shared__ As[BLOCK_SIZE][BLOCK_SIZE];
-  __shared__ Bs[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+  __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
   int bx = blockIdx.x, by = blockIdx.y;
   int tx = threadIdx.x, ty = threadIdx.y;
