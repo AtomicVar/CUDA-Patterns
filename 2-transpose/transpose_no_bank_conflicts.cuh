@@ -13,15 +13,18 @@ __global__ void transpose_no_bank_conflicts(float* odata, const float* idata, in
   int bx = blockIdx.x, by = blockIdx.y;
   int tx = threadIdx.x, ty = threadIdx.y;
 
-  int row = by * blockDim.y + ty;
-  int col = bx * blockDim.x + tx;
+  int row_in = by * blockDim.y + ty;
+  int col_in = bx * blockDim.x + tx;
 
-  __shared__ tile[BLOCK_SIZE][BLOCK_SIZE + 1];
+  int row_out = bx * blockDim.x + ty;
+  int col_out = by * blockDim.y + tx;
 
-  if (row < h && col < w) {
-    tile[ty][tx] = idata[row * w + col];
+  __shared__ float tile[BLOCK_SIZE][BLOCK_SIZE + 1];
+
+  if (row_in < h && col_in < w) {
+    tile[ty][tx] = idata[row_in * w + col_in];
     __syncthreads();
 
-    odata[col * h + row] = tile[ty][tx];
+    odata[row_out * w + col_out] = tile[tx][ty];
   }
 }
