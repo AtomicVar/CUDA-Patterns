@@ -1,5 +1,8 @@
 #pragma once
 
+#define MASK_MAX_LEN 32
+__constant__ float M[MASK_MAX_LEN];
+
 /**
  * @brief 1D 卷积（Tiled 版本）
  *
@@ -10,34 +13,39 @@
  * @param mask_w
  * @return __global__
  */
-__global__ void convolution_tiled(float* odata,
-                                  const float* idata,
-                                  const float* mask,
-                                  int w,
-                                  int mask_w) {
-  int bx = blockIdx.x, tx = threadIdx.x;
-  int i = bx * blockDim.x + tx;
+template<int TILE_SIZE>
+__global__ void conv1d(float* data, float* output, int len, int mask_len) {
+    __shared__ float data_s[TILE_SIZE + MASK_MAX_LEN - 1];
 
-  __shared__ float tile[blockDim.x];
+    int tx = threadIdx.x, bx = blockIdx.x;
+    int tid = bx * TILE_SIZE + tx;
 
-  tile[tx] = idata[i];
-  __syncthreads();
-
-  int tile_start = bx * blockDim.x;
-  int tile_end = (bx + 1) * blockDim.x; 
-
-  float sum = 0.0;
-  int begin = i - mask_w / 2;
-  for (int j = 0; j < mask_w; j++) {
-    int idata_idx = begin + j;
-    if (idata_idx >= 0 && idata_idx < w) {
-      if (idata_idx >= tile_start && idata_idx < tile_end) {
-        sum += tile[tx] * mask[j];  // TODO: 这里 tile[tx] 不对
-      } else {
-        sum += idata[begin + j] * mask[j];
-      }
+    // 1. Load to shared memory
+    int n = mask_len / 2;
+    if (tx >= TILE_SIZE - n) {
+        float value = 0.0f;
+        if (bx > 0) {
+            value = data[(bx - 1) * TILE_SIZE + tx];
+        }
+        data_s[tx - (TILE_SIZE - n)] = value;
     }
-  }
+    data_s[n + tx] = data[tid];
+    if (tx < n) {
+        float value = 0.0;
+        if ((bx + 1) * TILE_SIZE + tx < len) {
+            value = data[(bx + 1) * TILE_SIZE + tx];
+        }
+        data_s[TILE_SIZE + n + tx] = value;
+    }
 
-  odata[i] = sum;
+    __syncthreads();
+
+    // 2. conv1d on shared memory
+    float sum = 0.0;
+    for (int i = 0; i < mask_len; i++) {
+        sum += M[i] * data_s[tx + i];
+    }
+
+    // 3. Commit to global memory
+    output[tid] = sum;
 }
