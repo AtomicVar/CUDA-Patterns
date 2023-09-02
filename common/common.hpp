@@ -10,6 +10,10 @@
         }                                                                      \
     } while (0)
 
+#define CHECK(condition)                                                  \
+        if (!(condition))                                              \
+            std::cerr << "Check failed: " #condition << " "   
+
 void randomInit(float* data, int len) {
   for (int i = 0; i < len; ++i)
     data[i] = rand() / (float)RAND_MAX;
