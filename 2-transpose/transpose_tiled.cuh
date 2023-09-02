@@ -1,7 +1,5 @@
 #pragma once
 
-#define BLOCK_ROWS 1
-
 /**
  * @brief 矩阵转置（使用 Shared Memory 优化，读写均能访存合并）
  *
@@ -25,8 +23,11 @@ __global__ void transpose_tiled(float* odata, const float* idata, int h, int w) 
 
   if (row_in < h && col_in < w) {
     tile[ty][tx] = idata[row_in * w + col_in];
-    __syncthreads();
+  }
 
-    odata[row_out * w + col_out] = tile[tx][ty];
+  __syncthreads();
+
+  if (row_out < w && col_out < h) {
+    odata[row_out * h + col_out] = tile[tx][ty];
   }
 }

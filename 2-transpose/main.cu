@@ -8,24 +8,21 @@
 #include "../common/common.hpp"
 #include "../common/Timer.hpp"
 
-#define M         4096
-#define N         4096
-#define TILE_SIZE 32
+#define M         10240U
+#define N         1024U
+#define TILE_SIZE 32U
 
 float *x_cpu, *y_cpu;
 float *x_gpu, *y_gpu, *y_gpu_copyback;
 
 void prepare_input() {
   x_cpu          = new float[M * N];
-  y_cpu          = new float[M * N];
-  y_gpu_copyback = new float[M * N];
-  for (int i = 0; i < M; i++) {
-    for (int j = 0; j < N; j++)
-      x_cpu[i * N + j] = i * N + j;
-  }
+  y_cpu          = new float[N * M];
+  y_gpu_copyback = new float[N * M];
+  randomInit(x_cpu, M * N);
 
   CUDA_CHECK(cudaMalloc(&x_gpu, M * N * sizeof(float)));
-  CUDA_CHECK(cudaMalloc(&y_gpu, M * N * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&y_gpu, N * M * sizeof(float)));
 
   CUDA_CHECK(cudaMemcpy(x_gpu, x_cpu, sizeof(float) * M * N, cudaMemcpyHostToDevice));
 }
@@ -86,16 +83,16 @@ void test_transpose_tiled() {
     fprintf(stderr, "Error: transpose_tiled does not match CPU result!\n");
     // print cpu result
     printf("CPU:\n");
-    for (int i = 0; i < M; i++) {
-      for (int j = 0; j < N; j++)
-        printf("%f ", y_cpu[i * N + j]);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++)
+        printf("%f ", y_cpu[i * M + j]);
       printf("\n");
     }
     // print gpu result
     printf("GPU:\n");
-    for (int i = 0; i < M; i++) {
-      for (int j = 0; j < N; j++)
-        printf("%f ", y_gpu_copyback[i * N + j]);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++)
+        printf("%f ", y_gpu_copyback[i * M + j]);
       printf("\n");
     }
     exit(1);

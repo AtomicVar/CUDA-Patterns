@@ -40,6 +40,7 @@ bool all_equal(int* a, int* b, int len) {
   return true;
 }
 
-int ceil_div(int a, int b) {
+template <typename T>
+T ceil_div(T a, T b) {
   return (a + b - 1) / b;
 }

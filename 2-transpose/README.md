@@ -4,17 +4,21 @@
 
 - GPU: NVIDIA GeForce RTX 3080
 - CPU: Intel(R) Xeon(R) Silver 4210R CPU @ 2.40GHz x 40
-- CUDA: 11.7
+- CUDA/NVCC: 11.7
 - OS: Ubuntu 20.04
+- Host Compiler: g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+  - Compiler Options: `-O3 -std=c++17`
 
 ## 性能数据
 
+输入数据尺寸：`[10240, 1024]`
+
 |                              版本                               | 耗时（us） | 加速比 |
 | :-------------------------------------------------------------: | :--------: | :----: |
-|               [transpose_cpu](./transpose_cpu.h)                |   363335   |   1    |
-|            [transpose_naive](./transpose_naive.cuh)             |    722     | 503.2  |
-|            [transpose_tiled](./transpose_tiled.cuh)             |    375     | 968.9  |
-| [transpose_no_bank_conflict](./transpose_no_bank_conflicts.cuh) |    323     | 1124.9 |
+|               [transpose_cpu](./transpose_cpu.h)                |   75764    |   1    |
+|            [transpose_naive](./transpose_naive.cuh)             |    480     | 157.8  |
+|            [transpose_tiled](./transpose_tiled.cuh)             |    247     | 306.7  |
+| [transpose_no_bank_conflict](./transpose_no_bank_conflicts.cuh) |    189     | 400.8  |
 
 ## 算法说明
 

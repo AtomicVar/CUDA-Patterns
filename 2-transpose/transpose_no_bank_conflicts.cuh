@@ -23,8 +23,11 @@ __global__ void transpose_no_bank_conflicts(float* odata, const float* idata, in
 
   if (row_in < h && col_in < w) {
     tile[ty][tx] = idata[row_in * w + col_in];
-    __syncthreads();
+  }
 
-    odata[row_out * w + col_out] = tile[tx][ty];
+  __syncthreads();
+
+  if (row_out < w && col_out < h) {
+    odata[row_out * h + col_out] = tile[tx][ty];
   }
 }
