@@ -28,4 +28,5 @@ TODO
 
 ## 参考
 
-- [Programming Massively Parallel Processors](https://book.douban.com/subject/4265432/) (3rd Edition)
+- [Harris, Mark. "Optimizing parallel reduction in CUDA." Nvidia developer technology 2.4 (2007): 70.](http://cuda.uga.edu/docs/reduction.pdf)
+- [NVIDIA/cuda-samples](https://github.com/NVIDIA/cuda-samples): `Samples/2_Concepts_and_Techniques/reduction/reduction.cpp`
