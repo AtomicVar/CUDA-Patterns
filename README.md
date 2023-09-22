@@ -1,4 +1,4 @@
-# CUDA Exercises
+# CUDA Patterns
 
 1. [GEMM](./1-gemm/)
 2. [Transpose](./2-transpose/)
