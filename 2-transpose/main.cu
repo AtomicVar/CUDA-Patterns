@@ -43,23 +43,44 @@ void test_transpose_cpu() {
   Timer::Get()->End("transpose_cpu");
 }
 
-void test_transpose_naive() {
+void test_transpose_naive_read_coalesced() {
   randomInit(y_gpu_copyback, M * N);
   CUDA_CHECK(cudaDeviceSynchronize());
 
-  Timer::Get()->Start("transpose_naive");
+  Timer::Get()->Start("transpose_naive_read_coalesced");
 
   dim3 block = {TILE_SIZE, TILE_SIZE, 1};
   dim3 grid  = {ceil_div(N, TILE_SIZE), ceil_div(M, TILE_SIZE), 1};
-  transpose_naive<<<grid, block>>>(y_gpu, x_gpu, M, N);
+  transpose_naive_read_coalesced<<<grid, block>>>(y_gpu, x_gpu, M, N);
   CUDA_CHECK(cudaDeviceSynchronize());
 
-  Timer::Get()->End("transpose_naive");
+  Timer::Get()->End("transpose_naive_read_coalesced");
 
   CUDA_CHECK(cudaMemcpy(y_gpu_copyback, y_gpu, sizeof(float) * M * N, cudaMemcpyDeviceToHost));
 
   if (!all_close(y_cpu, y_gpu_copyback, M * N)) {
-    fprintf(stderr, "Error: transpose_naive does not match CPU result!\n");
+    fprintf(stderr, "Error: transpose_naive_read_coalesced does not match CPU result!\n");
+    exit(1);
+  }
+}
+
+void test_transpose_naive_write_coalesced() {
+  randomInit(y_gpu_copyback, M * N);
+  CUDA_CHECK(cudaDeviceSynchronize());
+
+  Timer::Get()->Start("transpose_naive_write_coalesced");
+
+  dim3 block = {TILE_SIZE, TILE_SIZE, 1};
+  dim3 grid  = {ceil_div(M, TILE_SIZE), ceil_div(N, TILE_SIZE), 1};
+  transpose_naive_write_coalesced<<<grid, block>>>(y_gpu, x_gpu, M, N);
+  CUDA_CHECK(cudaDeviceSynchronize());
+
+  Timer::Get()->End("transpose_naive_write_coalesced");
+
+  CUDA_CHECK(cudaMemcpy(y_gpu_copyback, y_gpu, sizeof(float) * M * N, cudaMemcpyDeviceToHost));
+
+  if (!all_close(y_cpu, y_gpu_copyback, M * N)) {
+    fprintf(stderr, "Error: transpose_naive_write_coalesced does not match CPU result!\n");
     exit(1);
   }
 }
@@ -125,7 +146,8 @@ int main() {
 
   test_transpose_cpu();
 
-  test_transpose_naive();
+  test_transpose_naive_read_coalesced();
+  test_transpose_naive_write_coalesced();
   test_transpose_tiled();
   test_transpose_no_bc();
 

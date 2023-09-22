@@ -16,9 +16,10 @@
 |                              版本                               | 耗时（us） | 加速比 |
 | :-------------------------------------------------------------: | :--------: | :----: |
 |               [transpose_cpu](./transpose_cpu.h)                |   75764    |   1    |
-|            [transpose_naive](./transpose_naive.cuh)             |    480     | 157.8  |
-|            [transpose_tiled](./transpose_tiled.cuh)             |    247     | 306.7  |
-| [transpose_no_bank_conflict](./transpose_no_bank_conflicts.cuh) |    189     | 400.8  |
+|     [transpose_naive_read_coalesced](./transpose_naive.cuh)     |    480     | 157.8  |
+|    [transpose_naive_write_coalesced](./transpose_naive.cuh)     |    228     | 332.3  |
+|            [transpose_tiled](./transpose_tiled.cuh)             |    234     | 323.7  |
+| [transpose_no_bank_conflict](./transpose_no_bank_conflicts.cuh) |    175     | 432.8  |
 
 ## 算法说明
 
