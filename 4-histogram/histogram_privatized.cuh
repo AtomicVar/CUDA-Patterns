@@ -3,7 +3,7 @@
 __global__ void histogram_privatized(int* data, int* histogram, int len, int num_bins) {
     extern __shared__ int histogram_s[];
 
-    // set histogram_s to all 0s cooperatively
+    // set histogram_s to all 0s cooperatively (Block-Stride Looping)
     for (int i = threadIdx.x; i < num_bins; i += blockDim.x) {
         histogram_s[i] = 0;
     }
